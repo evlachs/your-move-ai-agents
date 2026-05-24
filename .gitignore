@@ -1,0 +1,35 @@
+# Секреты — никогда не коммитить
+.env
+*.env.local
+
+# База данных агента
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Яндекс Клауд — ключи сервисных аккаунтов
+*.json
+!package.json
+
+# Логи
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# macOS
+.DS_Store
+
+# Docker
+.dockerignore
