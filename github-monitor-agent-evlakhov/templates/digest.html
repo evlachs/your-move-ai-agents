@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+  <meta charset='utf-8'>
+</head>
+<body style='margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif'>
+  <table width='100%' cellpadding='0' cellspacing='0' style='background:#f5f5f5'>
+    <tr>
+      <td align='center' style='padding:24px 16px'>
+        <table width='600' cellpadding='0' cellspacing='0'
+               style='background:#fff;border-radius:8px;overflow:hidden'>
+
+          {# ───── Шапка ───── #}
+          <tr>
+            <td style='background:#1a1a2e;padding:20px 28px'>
+              <div style='color:#fff;font-size:18px;font-weight:700'>GitHub Monitor</div>
+              <div style='color:#aaa;font-size:13px;margin-top:4px'>
+                {{ repo }} &nbsp;·&nbsp; {{ date_str }}
+              </div>
+            </td>
+          </tr>
+
+          {# ───── Тело ───── #}
+          <tr>
+            <td style='padding:8px 28px 28px'>
+
+              {# Pull Requests #}
+              {% if prs %}
+              <h2 style='color:#333;font-size:16px;margin:28px 0 12px;
+                          border-left:3px solid #0066cc;padding-left:10px'>
+                Pull Requests — {{ prs|length }} новых
+              </h2>
+              <table width='100%' cellpadding='0' cellspacing='0'>
+                {% for pr in prs %}
+                <tr>
+                  <td style='padding:12px 0;border-bottom:1px solid #f0f0f0'>
+                    <div style='margin-bottom:4px'>
+                      <a href='{{ pr.url }}'
+                         style='color:#0066cc;font-weight:600;text-decoration:none'>
+                        #{{ pr.number }} {{ pr.title }}
+                      </a>
+                    </div>
+                    <div style='color:#888;font-size:13px;margin-bottom:6px'>
+                      @{{ pr.author }} &nbsp;·&nbsp;
+                      {{ pr.changed_files }} файлов &nbsp;·&nbsp;
+                      <span style='color:#2a9d5c'>+{{ pr.additions }}</span>
+                      <span style='color:#e05c5c'> -{{ pr.deletions }}</span>
+                    </div>
+                    <div style='color:#444;font-size:14px;line-height:1.5'>
+                      {{ pr.analysis }}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+
+              {# Коммиты #}
+              {% if commits %}
+              <h2 style='color:#333;font-size:16px;margin:28px 0 12px;
+                          border-left:3px solid #2a9d5c;padding-left:10px'>
+                Коммиты — {{ commits|length }} новых
+              </h2>
+              {% if commits_summary %}
+              <p style='color:#555;font-size:14px;margin-bottom:12px'>
+                {{ commits_summary }}
+              </p>
+              {% endif %}
+              <table width='100%' cellpadding='0' cellspacing='0'>
+                {% for c in commits %}
+                <tr>
+                  <td style='padding:8px 0;border-bottom:1px solid #f0f0f0'>
+                    <a href='{{ c.url }}'
+                       style='font-family:monospace;color:#666;font-size:12px;text-decoration:none'>
+                      {{ c.short_sha }}
+                    </a>
+                    <span style='color:#333;font-size:14px;margin-left:10px'>
+                      {{ c.message }}
+                    </span>
+                    <span style='color:#aaa;font-size:12px;margin-left:8px'>
+                      @{{ c.author }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+              {% endif %}
+
+            </td>
+          </tr>
+
+          {# ───── Подвал ───── #}
+          <tr>
+            <td style='background:#f9f9f9;padding:14px 28px;
+                        border-top:1px solid #eee;color:#aaa;font-size:12px'>
+              Сгенерировано агентом ИИ-Синтез &nbsp;·&nbsp;
+              <a href='https://github.com/{{ repo }}' style='color:#aaa'>
+                {{ repo }}
+              </a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
