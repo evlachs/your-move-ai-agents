@@ -74,8 +74,20 @@ class GitHubTool:
             return []
 
     def create_branch(self, branch_name: str, from_sha: str):
-        """Создаёт новую ветку от указанного коммита."""
-        self.repo.create_git_ref(ref=f'refs/heads/{branch_name}', sha=from_sha)
+        """
+        Создаёт новую ветку от указанного коммита.
+        Если ветка уже существует (например, предыдущий запуск создал её, но упал
+        на публикации PR) — переиспользует её, чтобы не застрять в цикле ретраев:
+        имя ветки детерминировано от head_sha, и без этого повторный запуск для
+        того же head_sha всегда падал бы на этом шаге.
+        """
+        try:
+            self.repo.create_git_ref(ref=f'refs/heads/{branch_name}', sha=from_sha)
+        except GithubException as e:
+            if e.status == 422:
+                logger.info(f'Ветка {branch_name} уже существует — переиспользуем.')
+            else:
+                raise
 
     def commit_file(self, branch: str, path: str, content: str, message: str):
         """Создаёт или обновляет файл в ветке (одним коммитом)."""

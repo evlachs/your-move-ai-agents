@@ -49,15 +49,20 @@ class ProjectScanner:
         config_sections = []
 
         for path in sorted(paths):
+            is_python = path.endswith('.py')
+            is_context = path.split('/')[-1] in CONTEXT_FILES
+            if not is_python and not is_context:
+                continue
+
             content = self.github.get_file_content(path, ref)
             if content is None:
                 continue
 
-            if path.endswith('.py'):
+            if is_python:
                 summary = self._summarize_python(path, content)
                 if summary:
                     symbol_sections.append(summary)
-            elif path.split('/')[-1] in CONTEXT_FILES:
+            else:
                 config_sections.append(f'### {path}\n```\n{content}\n```')
 
         parts = [
