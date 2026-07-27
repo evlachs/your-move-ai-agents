@@ -35,45 +35,50 @@ def run(period_label: str = 'Дайджест'):
     mailbox = config.imap_mailbox
     logger.info(f'Агент запущен ({period_label}). Почтовый ящик: {mailbox}')
 
-    # ── Шаг 1: observe ──────────────────────────────────────────────
+    try:
+        # ── Шаг 1: observe ──────────────────────────────────────────
 
-    last_uid = memory.get_last_uid(mailbox)
-    new_emails = mail.fetch_new_emails(last_uid)
-    uidnext = mail.get_uidnext()
+        last_uid = memory.get_last_uid(mailbox)
+        new_emails = mail.fetch_new_emails(last_uid)
+        uidnext = mail.get_uidnext()
 
-    # ── Шаг 2: plan ─────────────────────────────────────────────────
+        # ── Шаг 2: plan ───────────────────────────────────────────────
 
-    if not new_emails:
-        logger.info('Новых писем нет — агент завершает работу.')
-        memory.set_last_uid(mailbox, uidnext - 1)
-        return
+        if not new_emails:
+            logger.info('Новых писем нет — агент завершает работу.')
+            memory.set_last_uid(mailbox, uidnext - 1)
+            return
 
-    # ── Шаг 3: act — анализ ─────────────────────────────────────────
+        # ── Шаг 3: act — анализ ───────────────────────────────────────
 
-    for mail_item in new_emails:
-        logger.info(f'Анализируем письмо UID {mail_item.uid}: {mail_item.subject}')
-        mail_item.summary, mail_item.importance = gpt.analyze_email(
-            mail_item.sender, mail_item.subject, mail_item.body,
-        )
+        for mail_item in new_emails:
+            logger.info(f'Анализируем письмо UID {mail_item.uid}: {mail_item.subject}')
+            mail_item.summary, mail_item.importance = gpt.analyze_email(
+                mail_item.sender, mail_item.subject, mail_item.body,
+            )
 
-    # ── Шаг 4: act — тема дайджеста ───────────────────────────────────
+        # ── Шаг 4: act — тема дайджеста ─────────────────────────────────
 
-    subject_line = gpt.generate_digest_subject(new_emails, period_label)
+        subject_line = gpt.generate_digest_subject(new_emails, period_label)
 
-    # ── Шаг 5: act — отправка ──────────────────────────────────────────
+        # ── Шаг 5: act — отправка ────────────────────────────────────────
 
-    sent = notifier.send_digest(new_emails, period_label, subject_line)
+        sent = notifier.send_digest(new_emails, period_label, subject_line)
 
-    # ── Шаг 6: observe — запись в память ────────────────────────────
-    # Важно: запоминаем ТОЛЬКО после успешной отправки.
-    # Если письмо не ушло — при следующем запуске попробуем снова с тех же писем.
+        # ── Шаг 6: observe — запись в память ──────────────────────────
+        # Важно: запоминаем ТОЛЬКО после успешной отправки.
+        # Если письмо не ушло — при следующем запуске попробуем снова с тех же писем.
 
-    if sent:
-        max_uid = max(e.uid for e in new_emails)
-        memory.set_last_uid(mailbox, max_uid)
-        logger.info(f'Готово. Обработано писем: {len(new_emails)}')
-    else:
-        logger.warning(
-            'Дайджест не отправлен — память не обновлена. '
-            'При следующем запуске попробуем снова.'
-        )
+        if sent:
+            max_uid = max(e.uid for e in new_emails)
+            memory.set_last_uid(mailbox, max_uid)
+            logger.info(f'Готово. Обработано писем: {len(new_emails)}')
+        else:
+            logger.warning(
+                'Дайджест не отправлен — память не обновлена. '
+                'При следующем запуске попробуем снова.'
+            )
+    finally:
+        # Планировщик — долгоживущий процесс; без явного закрытия IMAP-соединение
+        # из этого запуска осталось бы висеть до конца жизни процесса.
+        mail.close()

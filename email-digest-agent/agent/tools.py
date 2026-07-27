@@ -55,6 +55,20 @@ class MailFetcherTool:
             self._conn.select(self.config.imap_mailbox, readonly=True)
         return self._conn
 
+    def close(self):
+        """
+        Закрывает IMAP-соединение, если оно было открыто.
+        Планировщик — долгоживущий процесс: без явного close() соединение,
+        открытое в connection, никогда не разрывалось бы между запусками
+        (новый MailFetcherTool создаётся на каждый цикл агента).
+        """
+        if self._conn is not None:
+            try:
+                self._conn.logout()
+            except Exception:
+                pass
+            self._conn = None
+
     def get_uidnext(self) -> int:
         """UID, который получит следующее письмо — текущая верхняя граница ящика."""
         status, data = self.connection.status(self.config.imap_mailbox, '(UIDNEXT)')
