@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+  <meta charset='utf-8'>
+</head>
+<body style='margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif'>
+  <table width='100%' cellpadding='0' cellspacing='0' style='background:#f5f5f5'>
+    <tr>
+      <td align='center' style='padding:24px 16px'>
+        <table width='620' cellpadding='0' cellspacing='0'
+               style='background:#fff;border-radius:8px;overflow:hidden'>
+
+          {# ───── Шапка ───── #}
+          <tr>
+            <td style='background:#1a1a2e;padding:20px 28px'>
+              <div style='color:#fff;font-size:18px;font-weight:700'>Новые вакансии</div>
+              <div style='color:#aaa;font-size:13px;margin-top:4px'>
+                {{ search_query }} &nbsp;·&nbsp; {{ date_str }}
+                &nbsp;·&nbsp; всего: {{ total }}
+                {% if interesting %}&nbsp;·&nbsp; интересных: {{ interesting }}{% endif %}
+              </div>
+            </td>
+          </tr>
+
+          {# ───── Вакансии ───── #}
+          <tr>
+            <td style='padding:8px 28px 28px'>
+              {% for v in vacancies %}
+
+              {% if v.assessment == 'интересная' %}
+                {% set border_color = '#27ae60' %}
+                {% set badge_bg = '#eafaf1' %}
+                {% set badge_color = '#1e8449' %}
+              {% elif v.assessment == 'средняя' %}
+                {% set border_color = '#2980b9' %}
+                {% set badge_bg = '#eaf4fb' %}
+                {% set badge_color = '#1a6796' %}
+              {% else %}
+                {% set border_color = '#bdc3c7' %}
+                {% set badge_bg = '#f4f6f7' %}
+                {% set badge_color = '#7f8c8d' %}
+              {% endif %}
+
+              <table width='100%' cellpadding='0' cellspacing='0'
+                     style='margin-top:20px;border-left:3px solid {{ border_color }};
+                            padding-left:0;border-radius:0 4px 4px 0;
+                            background:#fafafa'>
+                <tr>
+                  <td style='padding:14px 16px 10px'>
+
+                    {# Заголовок #}
+                    <table width='100%' cellpadding='0' cellspacing='0'>
+                      <tr>
+                        <td>
+                          <a href='{{ v.url }}'
+                             style='color:#1a1a2e;font-size:15px;font-weight:700;text-decoration:none'>
+                            {{ v.title }}
+                          </a>
+                        </td>
+                        {% if v.assessment %}
+                        <td align='right' style='white-space:nowrap'>
+                          <span style='background:{{ badge_bg }};color:{{ badge_color }};
+                                       font-size:11px;padding:3px 8px;border-radius:10px'>
+                            {{ v.assessment }}
+                          </span>
+                        </td>
+                        {% endif %}
+                      </tr>
+                    </table>
+
+                    {# Работодатель и город #}
+                    <div style='color:#555;font-size:13px;margin-top:5px'>
+                      {{ v.employer }}
+                      {% if v.area %}&nbsp;·&nbsp; {{ v.area }}{% endif %}
+                    </div>
+
+                    {# Зарплата #}
+                    <div style='color:#1a7a3c;font-size:13px;font-weight:600;margin-top:4px'>
+                      {{ v.salary_str() }}
+                    </div>
+
+                    {# Требования от HH #}
+                    {% if v.requirement %}
+                    <div style='color:#666;font-size:13px;line-height:1.5;margin-top:8px'>
+                      {{ v.requirement }}
+                    </div>
+                    {% endif %}
+
+                    {# Ключевые точки от GPT #}
+                    {% if v.key_points %}
+                    <div style='margin-top:10px'>
+                      {% for point in v.key_points %}
+                      <div style='color:#444;font-size:12px;padding:2px 0'>
+                        &#9642;&nbsp;{{ point }}
+                      </div>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+
+                  </td>
+                </tr>
+              </table>
+
+              {% endfor %}
+            </td>
+          </tr>
+
+          {# ───── Подвал ───── #}
+          <tr>
+            <td style='background:#f9f9f9;padding:14px 28px;
+                        border-top:1px solid #eee;color:#aaa;font-size:12px'>
+              Сгенерировано агентом ИИ-Синтез &nbsp;·&nbsp;
+              <a href='https://hh.ru' style='color:#aaa'>hh.ru</a>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
