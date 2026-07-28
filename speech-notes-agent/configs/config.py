@@ -52,7 +52,7 @@ def load_config() -> Config:
             raise EnvironmentError(f'Переменная окружения {key!r} не задана')
         return value
 
-    raw_extensions = os.getenv('AUDIO_EXTENSIONS', '.mp3,.ogg,.wav,.m4a')
+    raw_extensions = os.getenv('AUDIO_EXTENSIONS', '.mp3,.ogg,.wav')
     extensions = [e.strip().lower() for e in raw_extensions.split(',') if e.strip()]
 
     return Config(

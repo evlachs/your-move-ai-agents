@@ -22,12 +22,16 @@ logger = logging.getLogger(__name__)
 SPEECHKIT_RECOGNIZE_URL = 'https://stt.api.cloud.yandex.net/speech/v1/stt:longRunningRecognize'
 OPERATIONS_URL = 'https://operation.api.cloud.yandex.net/operations'
 
-# Таблица соответствия расширения → кодировка для SpeechKit
+# Таблица соответствия расширения → кодировка для SpeechKit.
+# SpeechKit STT v1 поддерживает только LINEAR16_PCM, OGG_OPUS и MP3 — у .m4a
+# (AAC в MP4-контейнере) нет корректного соответствия ни одному из них, это
+# не MP3-совместимый формат несмотря на схожее применение. Отправка .m4a под
+# видом MP3 гарантированно не распознаётся, поэтому .m4a здесь не отображается
+# и не входит в список расширений по умолчанию (см. configs/config.py).
 _ENCODING_MAP = {
     '.mp3': 'MP3',
     '.ogg': 'OGG_OPUS',
     '.wav': 'LINEAR16_PCM',
-    '.m4a': 'MP3',   # m4a в большинстве случаев совместим с MP3-декодером
 }
 
 
