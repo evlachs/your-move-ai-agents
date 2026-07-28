@@ -50,18 +50,31 @@ class RSSFetcherTool:
         """
         Читает все ленты из конфига и возвращает объединённый список записей.
         Записи из каждой ленты ограничены max_entries_per_feed штуками (самые новые).
+        Ошибка одной ленты (таймаут, недоступность) не должна срывать дайджест
+        по остальным — логируем и пропускаем только эту ленту.
         """
         result: list[FeedEntry] = []
         for url in self.feeds:
-            entries = self._fetch_feed(url)
+            try:
+                entries = self._fetch_feed(url)
+            except Exception as e:
+                logger.error(f'RSS [{url}]: не удалось загрузить ленту — {e}')
+                continue
             result.extend(entries)
         logger.info(f'RSS: получено {len(result)} записей из {len(self.feeds)} лент.')
         return result
 
     def _fetch_feed(self, url: str) -> list[FeedEntry]:
-        """Загружает одну ленту и возвращает список записей."""
+        """
+        Загружает одну ленту и возвращает список записей.
+        feedparser.parse() не принимает таймаут, когда ему передают URL напрямую —
+        зависший источник заблокировал бы весь дайджест на неопределённое время.
+        Поэтому качаем через requests (с таймаутом), а feedparser отдаём уже байты.
+        """
         logger.info(f'RSS: загружаем {url}')
-        parsed = feedparser.parse(url, agent=_USER_AGENT)
+        response = requests.get(url, headers={'User-Agent': _USER_AGENT}, timeout=15)
+        response.raise_for_status()
+        parsed = feedparser.parse(response.content)
 
         if parsed.bozo:
             # bozo=True означает, что feedparser поймал ошибку парсинга.
