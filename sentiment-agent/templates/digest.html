@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчёт по отзывам</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 700px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+    .header { background: #4a4a8a; color: #fff; padding: 24px 32px; }
+    .header h1 { margin: 0 0 4px; font-size: 22px; }
+    .header p { margin: 0; opacity: .8; font-size: 13px; }
+    .body { padding: 24px 32px; }
+
+    .stats { display: flex; gap: 12px; margin-bottom: 24px; }
+    .stat-box { flex: 1; border-radius: 6px; padding: 14px; text-align: center; }
+    .stat-box .count { font-size: 28px; font-weight: bold; }
+    .stat-box .label { font-size: 12px; margin-top: 4px; }
+    .stat-all  { background: #eef; border: 1px solid #c8c8ee; }
+    .stat-pos  { background: #efe; border: 1px solid #b0d8b0; }
+    .stat-neut { background: #fffbe6; border: 1px solid #e8d870; }
+    .stat-neg  { background: #fee; border: 1px solid #e8b0b0; }
+
+    .summary-block { background: #f0f4ff; border-left: 4px solid #4a4a8a; padding: 14px 18px; border-radius: 0 6px 6px 0; margin-bottom: 24px; font-size: 14px; line-height: 1.7; }
+
+    .section-title { font-size: 15px; font-weight: bold; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #eee; }
+    .section-neg   { color: #b00; border-color: #f8c0c0; }
+    .section-neut  { color: #776600; border-color: #ffe090; }
+    .section-pos   { color: #1a7a1a; border-color: #b8e8b8; }
+
+    .review-card { border: 1px solid #eee; border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; font-size: 13px; line-height: 1.6; }
+    .review-card.neg  { border-left: 4px solid #e04040; }
+    .review-card.neut { border-left: 4px solid #d4b000; }
+    .review-card.pos  { border-left: 4px solid #3a9a3a; }
+    .review-text { color: #333; }
+    .review-topics { margin-top: 6px; font-size: 11px; color: #888; }
+    .review-topics span { background: #f0f0f0; border-radius: 3px; padding: 1px 6px; margin-right: 4px; }
+
+    .footer { background: #f9f9f9; padding: 14px 32px; font-size: 11px; color: #999; text-align: center; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h1>Отчёт по отзывам</h1>
+    <p>Сформирован: {{ generated_at }}</p>
+  </div>
+
+  <div class="body">
+
+    <!-- Статистика -->
+    <div class="stats">
+      <div class="stat-box stat-all">
+        <div class="count">{{ total }}</div>
+        <div class="label">Всего новых</div>
+      </div>
+      <div class="stat-box stat-pos">
+        <div class="count">{{ positive|length }}</div>
+        <div class="label">Позитивных</div>
+      </div>
+      <div class="stat-box stat-neut">
+        <div class="count">{{ neutral|length }}</div>
+        <div class="label">Нейтральных</div>
+      </div>
+      <div class="stat-box stat-neg">
+        <div class="count">{{ negative|length }}</div>
+        <div class="label">Негативных</div>
+      </div>
+    </div>
+
+    <!-- Резюме от GPT -->
+    {% if summary %}
+    <div class="summary-block">{{ summary }}</div>
+    {% endif %}
+
+    <!-- Негативные -->
+    {% if negative %}
+    <div class="section-title section-neg">Негативные ({{ negative|length }})</div>
+    {% for r in negative %}
+    <div class="review-card neg">
+      <div class="review-text">{{ r.text }}</div>
+      {% if r.topics %}
+      <div class="review-topics">
+        {% for t in r.topics %}<span>{{ t }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Нейтральные -->
+    {% if neutral %}
+    <div class="section-title section-neut">Нейтральные ({{ neutral|length }})</div>
+    {% for r in neutral %}
+    <div class="review-card neut">
+      <div class="review-text">{{ r.text }}</div>
+      {% if r.topics %}
+      <div class="review-topics">
+        {% for t in r.topics %}<span>{{ t }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- Позитивные -->
+    {% if positive %}
+    <div class="section-title section-pos">Позитивные ({{ positive|length }})</div>
+    {% for r in positive %}
+    <div class="review-card pos">
+      <div class="review-text">{{ r.text }}</div>
+      {% if r.topics %}
+      <div class="review-topics">
+        {% for t in r.topics %}<span>{{ t }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+  </div>
+
+  <div class="footer">
+    Агент ИИ-Синтез · Твой Ход
+  </div>
+
+</div>
+</body>
+</html>
