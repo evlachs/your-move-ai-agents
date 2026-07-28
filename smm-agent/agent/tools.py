@@ -9,6 +9,7 @@ import base64
 import logging
 import time
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -232,7 +233,14 @@ class VKTool:
         return str(result['post_id'])
 
 
-def next_publish_datetime(publish_hour: int) -> datetime:
-    """Завтра в указанный час — время, на которое ставится отложенная запись."""
-    tomorrow = datetime.now() + timedelta(days=1)
+def next_publish_datetime(publish_hour: int, timezone: str) -> datetime:
+    """
+    Завтра в указанный час — время, на которое ставится отложенная запись.
+    Использует config.timezone явно: наивный datetime.now() брал бы системное
+    время контейнера (обычно UTC), из-за чего PUBLISH_HOUR интерпретировался бы
+    не как московский час, а как UTC-час — пост в VK публиковался бы на 3 часа
+    позже задуманного.
+    """
+    tz = ZoneInfo(timezone)
+    tomorrow = datetime.now(tz) + timedelta(days=1)
     return tomorrow.replace(hour=publish_hour, minute=0, second=0, microsecond=0)

@@ -31,7 +31,7 @@ def run():
     art    = YandexARTTool(config)
     vk     = VKTool(config)
 
-    publish_at = next_publish_datetime(config.publish_hour)
+    publish_at = next_publish_datetime(config.publish_hour, config.timezone)
     logger.info(f'Агент запущен. Целевая дата публикации черновика: {publish_at.isoformat()}')
 
     # ── Шаг 1: plan ─────────────────────────────────────────────────

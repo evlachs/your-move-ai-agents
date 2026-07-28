@@ -5,6 +5,7 @@ memory.py — память агента между запусками
 (чтобы не создавать дубликаты при повторном запуске).
 """
 
+import os
 import sqlite3
 import logging
 from datetime import datetime
@@ -38,7 +39,10 @@ class AgentMemory:
             conn.close()
 
     def _init_db(self):
-        """Создаёт таблицу если её ещё нет. Безопасно вызывать при каждом старте."""
+        """Создаёт директорию и таблицу если их ещё нет. Безопасно вызывать при каждом старте."""
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         with self._conn() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS posts (
