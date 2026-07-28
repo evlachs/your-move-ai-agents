@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang='ru'>
+<head>
+  <meta charset='utf-8'>
+</head>
+<body style='margin:0;padding:0;background:#f5f5f5;font-family:Arial,sans-serif'>
+  <table width='100%' cellpadding='0' cellspacing='0' style='background:#f5f5f5'>
+    <tr>
+      <td align='center' style='padding:24px 16px'>
+        <table width='600' cellpadding='0' cellspacing='0'
+               style='background:#fff;border-radius:8px;overflow:hidden'>
+
+          {# ───── Шапка ───── #}
+          <tr>
+            <td style='background:#1a1a2e;padding:20px 28px'>
+              <div style='color:#fff;font-size:18px;font-weight:700'>Speech Notes</div>
+              <div style='color:#aaa;font-size:13px;margin-top:4px'>
+                {{ date_str }} &nbsp;·&nbsp; записей: {{ total }}
+              </div>
+            </td>
+          </tr>
+
+          {# ───── Заметки ───── #}
+          <tr>
+            <td style='padding:8px 28px 28px'>
+              {% for notes in notes_list %}
+              <table width='100%' cellpadding='0' cellspacing='0'
+                     style='margin-top:24px;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden'>
+
+                {# Заголовок записи #}
+                <tr>
+                  <td style='background:#f0f4ff;padding:12px 16px;border-bottom:1px solid #e0e8ff'>
+                    <div style='color:#1a1a2e;font-weight:700;font-size:15px'>
+                      {{ notes.file_name }}
+                    </div>
+                    <div style='color:#888;font-size:12px;margin-top:3px'>
+                      {{ notes.processed_at.strftime('%d.%m.%Y %H:%M') }}
+                    </div>
+                  </td>
+                </tr>
+
+                {# Резюме #}
+                <tr>
+                  <td style='padding:14px 16px 10px'>
+                    <div style='color:#555;font-size:12px;text-transform:uppercase;
+                                letter-spacing:0.5px;margin-bottom:6px'>Резюме</div>
+                    <div style='color:#333;font-size:14px;line-height:1.6'>
+                      {{ notes.summary }}
+                    </div>
+                  </td>
+                </tr>
+
+                {# Задачи #}
+                {% if notes.tasks %}
+                <tr>
+                  <td style='padding:0 16px 14px'>
+                    <div style='color:#555;font-size:12px;text-transform:uppercase;
+                                letter-spacing:0.5px;margin-bottom:8px'>Задачи</div>
+                    <table width='100%' cellpadding='0' cellspacing='0'>
+                      {% for task in notes.tasks %}
+                      <tr>
+                        <td style='padding:4px 0;vertical-align:top;width:18px'>
+                          <span style='color:#0066cc;font-weight:700'>&#9632;</span>
+                        </td>
+                        <td style='padding:4px 0 4px 8px;color:#333;font-size:14px;line-height:1.5'>
+                          {{ task }}
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </td>
+                </tr>
+                {% endif %}
+
+              </table>
+              {% endfor %}
+            </td>
+          </tr>
+
+          {# ───── Подвал ───── #}
+          <tr>
+            <td style='background:#f9f9f9;padding:14px 28px;
+                        border-top:1px solid #eee;color:#aaa;font-size:12px'>
+              Сгенерировано агентом ИИ-Синтез
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
