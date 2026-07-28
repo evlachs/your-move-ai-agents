@@ -7,6 +7,7 @@ import smtplib
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -14,6 +15,11 @@ from configs.config import Config
 from agent.tools import Review
 
 logger = logging.getLogger(__name__)
+
+# Папка с шаблонами — рядом с корнем проекта. Абсолютный путь, а не 'templates':
+# иначе поиск шаблона зависел бы от текущей рабочей директории процесса
+# (которая может не совпадать с корнем агента — cron, systemd, другой WORKDIR).
+TEMPLATES_DIR = Path(__file__).parent.parent / 'templates'
 
 
 class EmailNotifier:
@@ -28,7 +34,7 @@ class EmailNotifier:
         self.email_to = config.email_to
 
         self._jinja = Environment(
-            loader=FileSystemLoader('templates'),
+            loader=FileSystemLoader(TEMPLATES_DIR),
             autoescape=select_autoescape(['html']),
         )
 
