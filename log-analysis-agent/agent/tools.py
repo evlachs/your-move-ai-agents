@@ -73,8 +73,13 @@ class LogFetcherTool:
                 data = response.json()
 
             except Exception as e:
+                # Не глотаем ошибку молча: если она произойдёт на середине пагинации,
+                # вызывающий код (core.run) посчитает окно [since, until) полностью
+                # разобранным и сдвинет память вперёд — записи с ещё не запрошенных
+                # страниц будут потеряны безвозвратно. Пробрасываем исключение, чтобы
+                # окно осталось непроверенным и было повторено на следующем запуске.
                 logger.error(f'Ошибка запроса к Yandex Cloud Logging: {e}')
-                break
+                raise
 
             for raw in data.get('entries', []):
                 entries.append(LogEntry(
