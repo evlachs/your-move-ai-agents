@@ -76,8 +76,11 @@ class GitHubTool:
         since = datetime.now(timezone.utc) - timedelta(hours=since_hours)
 
         try:
+            # state='all' — иначе PR, созданный и смёрженный/закрытый в пределах
+            # одного окна между проверками, никогда не попал бы в дайджест: к
+            # моменту запуска агента он уже не 'open'.
             pulls = self.repo.get_pulls(
-                state='open',
+                state='all',
                 sort='created',
                 direction='desc',
             )

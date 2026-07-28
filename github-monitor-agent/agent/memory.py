@@ -3,6 +3,7 @@ memory.py — память агента между запусками
 Хранит уже обработанные PR и коммиты чтобы не слать одно и то же дважды
 """
 
+import os
 import sqlite3
 import logging
 from datetime import datetime
@@ -37,7 +38,10 @@ class AgentMemory:
             conn.close()
 
     def _init_db(self):
-        """Создаёт таблицы если их ещё нет. Безопасно вызывать при каждом старте."""
+        """Создаёт директорию и таблицы если их ещё нет. Безопасно вызывать при каждом старте."""
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
         with self._conn() as conn:
             conn.executescript("""
                 CREATE TABLE IF NOT EXISTS seen_prs (
@@ -124,7 +128,7 @@ class AgentMemory:
         """Запомнить сразу список коммитов после успешной отправки дайджеста."""
         for c in commits:
             self.mark_commit_seen(c.sha, repo, c.message)
-            logger.info(f'Запомнено {len(commits)} новых коммитов для {repo}')
+        logger.info(f'Запомнено {len(commits)} новых коммитов для {repo}')
 
     def stats(self, repo: str) -> dict:
         """Статистика для отладки — сколько всего помним."""
